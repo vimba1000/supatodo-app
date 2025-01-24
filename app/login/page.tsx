@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,13 +13,24 @@ import { emailLogin, signup } from "./actions";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { OAuthButtons } from "./oauth-signin";
+import { useEffect ,useState } from "react";
 
 export default async function Login({
   searchParams,
 }: {
-  searchParams: { message: string };
+  searchParams: { message?: string };
 }) {
-  const supabase = await createClient();
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMessage = async () => {
+      const params = await searchParams;
+      setMessage(params.message ?? null);
+    };
+    fetchMessage();
+  }, [searchParams]);
+
+  const supabase = createClient();
 
   const {
     data: { user },
@@ -61,9 +73,9 @@ export default async function Login({
                 required
               />
             </div>
-            {searchParams.message && (
+            {message && (
               <div className="text-sm font-medium text-destructive">
-                {searchParams.message}
+                {message}
               </div>
             )}
             <Button formAction={emailLogin} className="w-full">
